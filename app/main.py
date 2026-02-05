@@ -28,8 +28,6 @@ def login(user_in: schemas.UserLogin, db: Session = Depends(get_db)) -> schemas.
     user = crud.get_user_by_username(db, user_in.username)
     if not user or not verify_password(user_in.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    token = create_token()
-    user = crud.update_user_token(db, user, token)
     return schemas.TokenOut(token=user.token)
 
 
@@ -56,26 +54,6 @@ def list_tasks(
     _: models.User = Depends(get_current_user),
 ) -> list[schemas.TaskOut]:
     return crud.list_tasks(db, status=status, topic=topic, assignee_id=assignee_id, search=search)
-
-
-@app.get("/tasks/analytics", response_model=schemas.AnalyticsResponse)
-def task_analytics(
-    group_by: str = "status",
-    with_chart: bool = False,
-    db: Session = Depends(get_db),
-    _: models.User = Depends(get_current_user),
-) -> schemas.AnalyticsResponse:
-    if group_by not in analytics.GROUP_FIELDS:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid group_by")
-    df = analytics.build_task_dataframe(db)
-    grouped = analytics.compute_group_stats(df, group_by)
-    chart = analytics.build_chart(grouped, group_by) if with_chart else None
-    return schemas.AnalyticsResponse(
-        group_by=group_by,
-        total=len(df.index),
-        data=[schemas.AnalyticsGroup(label=str(row[group_by]), count=row["count"]) for row in grouped],
-        chart_base64=chart,
-    )
 
 
 @app.get("/tasks/{task_id}", response_model=schemas.TaskOut)
@@ -130,3 +108,23 @@ def delete_task(
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
     crud.delete_task(db, task)
+
+
+@app.get("/tasks/analytics", response_model=schemas.AnalyticsResponse)
+def task_analytics(
+    group_by: str = "status",
+    with_chart: bool = False,
+    db: Session = Depends(get_db),
+    _: models.User = Depends(get_current_user),
+) -> schemas.AnalyticsResponse:
+    if group_by not in analytics.GROUP_FIELDS:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid group_by")
+    df = analytics.build_task_dataframe(db)
+    grouped = analytics.compute_group_stats(df, group_by)
+    chart = analytics.build_chart(grouped, group_by) if with_chart else None
+    return schemas.AnalyticsResponse(
+        group_by=group_by,
+        total=len(df.index),
+        data=[schemas.AnalyticsGroup(label=str(row[group_by]), count=row["count"]) for row in grouped],
+        chart_base64=chart,
+    )
