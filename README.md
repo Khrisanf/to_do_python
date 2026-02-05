@@ -59,6 +59,7 @@ curl -X POST http://localhost:8000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"secret123"}'
 ```
+Используйте полученный `token` в Swagger UI (кнопка **Authorize**) или в заголовке `Authorization: Bearer <TOKEN>`.
 
 ### Создание задачи
 ```bash
