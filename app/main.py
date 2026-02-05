@@ -28,8 +28,6 @@ def login(user_in: schemas.UserLogin, db: Session = Depends(get_db)) -> schemas.
     user = crud.get_user_by_username(db, user_in.username)
     if not user or not verify_password(user_in.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    token = create_token()
-    user = crud.update_user_token(db, user, token)
     return schemas.TokenOut(token=user.token)
 
 
