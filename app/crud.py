@@ -24,16 +24,8 @@ def get_user_by_id(db: Session, user_id: int) -> models.User | None:
     return db.query(models.User).filter(models.User.id == user_id).first()
 
 
-def update_user_token(db: Session, user: models.User, token: str) -> models.User:
-    user.token = token
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
-
-
-def create_task(db: Session, task_in: schemas.TaskCreate, assignee_id: int) -> models.Task:
-    task = models.Task(**task_in.model_dump(), assignee_id=assignee_id)
+def create_task(db: Session, task_in: schemas.TaskCreate) -> models.Task:
+    task = models.Task(**task_in.model_dump())
     db.add(task)
     db.commit()
     db.refresh(task)

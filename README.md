@@ -68,7 +68,6 @@ curl -X POST http://localhost:8000/tasks \
   -H "Content-Type: application/json" \
   -d '{"title":"Сделать отчёт","description":"Подготовить аналитическую сводку","status":"new","topic":"аналитика"}'
 ```
-Исполнитель (`assignee_id`) выставляется автоматически как текущий авторизованный пользователь.
 
 ### Фильтрация
 ```bash

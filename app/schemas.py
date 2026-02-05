@@ -37,13 +37,11 @@ class TaskBase(BaseModel):
     description: Optional[str] = None
     status: TaskStatus = TaskStatus.new
     topic: Optional[str] = Field(default=None, max_length=100)
+    assignee_id: Optional[int] = None
 
 
-class TaskCreate(BaseModel):
-    title: str = Field(min_length=1, max_length=200)
-    description: Optional[str] = None
-    status: TaskStatus = TaskStatus.new
-    topic: Optional[str] = Field(default=None, max_length=100)
+class TaskCreate(TaskBase):
+    pass
 
 
 class TaskUpdate(BaseModel):
@@ -51,11 +49,11 @@ class TaskUpdate(BaseModel):
     description: Optional[str] = None
     status: Optional[TaskStatus] = None
     topic: Optional[str] = Field(default=None, max_length=100)
+    assignee_id: Optional[int] = None
 
 
 class TaskOut(TaskBase):
     id: int
-    assignee_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime
 
